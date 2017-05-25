@@ -198,4 +198,12 @@
     window.localStorage.setItem('selectedCities', JSON.stringify(app.selectedCities));
   }
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('/service-worker.js?v1')
+      .then(function (registration) {
+        console.log('Service Worker Registered');
+      });
+  }
+
 })();
