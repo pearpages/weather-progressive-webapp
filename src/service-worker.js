@@ -1,4 +1,6 @@
 var cacheName = 'weatherPWA-v1';
+var dataCacheName = 'weatherData-v1';
+var weatherAPIUrlBase = 'https://publicdata-weather.firebaseio.com/';
 var filesToCache = [
     '/',
     '/index.html',
@@ -34,8 +36,8 @@ self.addEventListener('activate', function (e) {
     e.waitUntil(
         caches.keys().then(function (keyList) {
             return Promise.all(keyList.map(function (key) {
-                console.log('[ServiceWorker] Removing old cache', key);
-                if (key !== cacheName) {
+                if (key !== cacheName && key !== dataCacheName) {
+                    console.log('[ServiceWorker] Removing old cache', key);
                     return caches.delete(key);
                 }
             }))
@@ -45,9 +47,22 @@ self.addEventListener('activate', function (e) {
 
 self.addEventListener('fetch', function (e) {
     console.log('[ServiceWorker] Fetch', e.request.url);
-    e.respondWith(
-        caches.match(e.request).then(function (response) {
-            return response || fetch(e.request);
-        })
-    );
+    if (e.request.url.startsWith(weatherAPIUrlBase)) {
+        e.respondWith(
+            fetch(e.request)
+                .then(function (response) {
+                    return caches.open(dataCacheName).then(function (cache) {
+                        cache.put(e.request.url, response.clone());
+                        console.log('[ServiceWorker] Fetched&Cached Data');
+                        return response;
+                    })
+                })
+        )
+    } else {
+        e.respondWith(
+            caches.match(e.request).then(function (response) {
+                return response || fetch(e.request);
+            })
+        );
+    }
 });
