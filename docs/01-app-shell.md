@@ -23,3 +23,13 @@ Separates the core App UI from the data.
 + CSS (some)
 + Images (some)
 + None Data
+
+## Storage methods
+
++ local storage (synchronous, not transactional)
++ caches object (asynchronous, fast, not transactional)
++ IndexedDB (asynchronous, fast, transactional, ugly API)
+    + localForage
+    + lovefield
+
+> Webbrowser storeage is not permanent.
